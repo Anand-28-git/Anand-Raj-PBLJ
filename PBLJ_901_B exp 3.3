@@ -1,0 +1,807 @@
+✅ PART A — Sum of Integers Using Autoboxing, Unboxing & Parsing
+✔ Concepts Used
+
+Autoboxing: int → Integer (automatic)
+
+Unboxing: Integer → int
+
+Integer.parseInt()
+
+ArrayList<Integer>
+
+Enhanced for-loop
+
+✔ Java Code — Part A
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class SumUsingAutoboxing {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        ArrayList<Integer> numbers = new ArrayList<>();
+
+        System.out.println("Enter integers (type 'stop' to finish):");
+
+        // Accept string inputs
+        while (true) {
+            String input = sc.next();
+
+            if (input.equalsIgnoreCase("stop")) {
+                break;
+            }
+
+            // Parse string to int → Autoboxing happens when added to ArrayList<Integer>
+            Integer num = Integer.parseInt(input);
+            numbers.add(num);
+        }
+
+        // Calculate sum using unboxing
+        int sum = 0;
+        for (Integer value : numbers) {  
+            sum += value;   // unboxing here
+        }
+
+        System.out.println("Total Sum = " + sum);
+        sc.close();
+    }
+}
+
+✅ PART B — Serialization & Deserialization of Student Object
+✔ Concepts Used
+
+Serializable
+
+ObjectOutputStream
+
+ObjectInputStream
+
+Saving & retrieving object from file
+
+✔ Student Class
+import java.io.Serializable;
+
+public class Student implements Serializable {
+    private int studentID;
+    private String name;
+    private double grade;
+
+    public Student(int studentID, String name, double grade) {
+        this.studentID = studentID;
+        this.name = name;
+        this.grade = grade;
+    }
+
+    public void display() {
+        System.out.println("Student ID : " + studentID);
+        System.out.println("Name       : " + name);
+        System.out.println("Grade      : " + grade);
+    }
+}
+
+✔ Java Code — Serialization & Deserialization
+import java.io.*;
+
+public class StudentSerializationDemo {
+    public static void main(String[] args) {
+        String filename = "studentData.ser";
+
+        // Create Student object
+        Student s1 = new Student(101, "Anand", 8.5);
+
+        // Serialization
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
+            out.writeObject(s1);
+            System.out.println("Student object serialized successfully!");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Deserialization
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename))) {
+            Student s2 = (Student) in.readObject();
+            System.out.println("\nDeserialized Student Data:");
+            s2.display();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+✅ PART C — Menu-Based Employee Management System (File Handling)
+✔ Concepts Used
+
+FileWriter, BufferedWriter
+
+FileReader, BufferedReader
+
+Text-based persistent storage
+
+Scanner + loop-based menu
+
+✔ Java Code — Menu Driven Employee System
+import java.io.*;
+import java.util.Scanner;
+
+public class EmployeeManagementSystem {
+
+    private static final String FILE_NAME = "employees.txt";
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int choice;
+
+        while (true) {
+            System.out.println("\n===== Employee Management System =====");
+            System.out.println("1. Add Employee");
+            System.out.println("2. Display All Employees");
+            System.out.println("3. Exit");
+            System.out.print("Enter choice: ");
+            choice = sc.nextInt();
+
+            switch (choice) {
+                case 1:
+                    addEmployee(sc);
+                    break;
+                case 2:
+                    displayEmployees();
+                    break;
+                case 3:
+                    System.out.println("Exiting... Thank you!");
+                    sc.close();
+                    return;
+                default:
+                    System.out.println("Invalid choice! Try again.");
+            }
+        }
+    }
+
+    // Add employee and save to file
+    public static void addEmployee(Scanner sc) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_NAME, true))) {
+            System.out.print("Enter Employee ID: ");
+            int id = sc.nextInt();
+
+            sc.nextLine(); // consume leftover newline
+
+            System.out.print("Enter Employee Name: ");
+            String name = sc.nextLine();
+
+            System.out.print("Enter Designation: ");
+            String designation = sc.nextLine();
+
+            System.out.print("Enter Salary: ");
+            double salary = sc.nextDouble();
+
+            String record = id + "," + name + "," + designation + "," + salary;
+            bw.write(record);
+            bw.newLine();
+
+            System.out.println("Employee added successfully!");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Display all employees
+    public static void displayEmployees() {
+        try (BufferedReader br = new BufferedReader(new FileReader(FILE_NAME))) {
+            String line;
+            System.out.println("\n===== Employee Records =====");
+
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split(",");
+                System.out.println("ID: " + data[0] +
+                                   " | Name: " + data[1] +
+                                   " | Designation: " + data[2] +
+                                   " | Salary: " + data[3]);
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("No employee data found!");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+Part B — Hibernate Application for Student CRUD Operations
+SQL DDL (MySQL)
+CREATE DATABASE IF NOT EXISTS demo;
+USE demo;
+
+CREATE TABLE IF NOT EXISTS Student (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(100),
+  age INT
+);
+
+src/main/resources/hibernate.cfg.xml
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!-- JDBC connection settings -->
+        <property name="connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="connection.url">jdbc:mysql://localhost:3306/demo?useSSL=false&amp;serverTimezone=UTC</property>
+        <property name="connection.username">root</property>
+        <property name="connection.password">root</property>
+
+        <!-- SQL dialect -->
+        <property name="dialect">org.hibernate.dialect.MySQL8Dialect</property>
+
+        <!-- Echo all executed SQL to stdout -->
+        <property name="show_sql">true</property>
+        <property name="format_sql">true</property>
+
+        <!-- Recommended: manage schema manually in production -->
+        <property name="hbm2ddl.auto">update</property>
+
+        <!-- Mapped annotated classes -->
+        <mapping class="com.example.app.partb.StudentEntity"/>
+    </session-factory>
+</hibernate-configuration>
+
+com/example/app/partb/StudentEntity.java
+package com.example.app.partb;
+
+import javax.persistence.*;
+
+@Entity
+@Table(name = "Student")
+public class StudentEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @Column(nullable=false)
+    private String name;
+
+    private String email;
+
+    private Integer age;
+
+    public StudentEntity() {}
+
+    public StudentEntity(String name, String email, Integer age) {
+        this.name = name;
+        this.email = email;
+        this.age = age;
+    }
+
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public Integer getAge() { return age; }
+    public void setAge(Integer age) { this.age = age; }
+
+    @Override
+    public String toString() {
+        return "StudentEntity{id=" + id + ", name='" + name + "', email='" + email + "', age=" + age + "}";
+    }
+}
+
+com/example/app/partb/HibernateUtil.java
+package com.example.app.partb;
+
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+
+public class HibernateUtil {
+    private static final SessionFactory sessionFactory = buildSessionFactory();
+
+    private static SessionFactory buildSessionFactory() {
+        try {
+            Configuration cfg = new Configuration();
+            cfg.configure("hibernate.cfg.xml");
+            return cfg.buildSessionFactory();
+        } catch (Throwable ex) {
+            System.err.println("Initial SessionFactory creation failed." + ex);
+            throw new ExceptionInInitializerError(ex);
+        }
+    }
+
+    public static SessionFactory getSessionFactory() {
+        return sessionFactory;
+    }
+
+    public static void shutdown() {
+        getSessionFactory().close();
+    }
+}
+
+com/example/app/partb/StudentDAO.java
+package com.example.app.partb;
+
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import java.util.List;
+
+public class StudentDAO {
+
+    public StudentEntity create(StudentEntity student) {
+        Transaction tx = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            tx = session.beginTransaction();
+            session.save(student);
+            tx.commit();
+            return student;
+        } catch (Exception e) {
+            if (tx != null) tx.rollback();
+            throw e;
+        }
+    }
+
+    public StudentEntity read(int id) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.get(StudentEntity.class, id);
+        }
+    }
+
+    public List<StudentEntity> readAll() {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery("from StudentEntity", StudentEntity.class).list();
+        }
+    }
+
+    public void update(StudentEntity student) {
+        Transaction tx = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            tx = session.beginTransaction();
+            session.update(student);
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null) tx.rollback();
+            throw e;
+        }
+    }
+
+    public void delete(int id) {
+        Transaction tx = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            tx = session.beginTransaction();
+            StudentEntity s = session.get(StudentEntity.class, id);
+            if (s != null) session.delete(s);
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null) tx.rollback();
+            throw e;
+        }
+    }
+}
+
+com/example/app/partb/MainB.java
+package com.example.app.partb;
+
+import java.util.List;
+
+public class MainB {
+    public static void main(String[] args) {
+        StudentDAO dao = new StudentDAO();
+
+        // Create
+        StudentEntity s1 = new StudentEntity("Ravi Kumar", "ravi@example.com", 21);
+        dao.create(s1);
+        System.out.println("Created: " + s1);
+
+        // Read All
+        List<StudentEntity> all = dao.readAll();
+        System.out.println("All students:");
+        all.forEach(System.out::println);
+
+        // Read single
+        StudentEntity found = dao.read(s1.getId());
+        System.out.println("Found: " + found);
+
+        // Update
+        found.setEmail("ravi.kumar@newmail.com");
+        found.setAge(22);
+        dao.update(found);
+        System.out.println("Updated: " + dao.read(found.getId()));
+
+        // Delete
+        dao.delete(found.getId());
+        System.out.println("Deleted student with id: " + found.getId());
+
+        HibernateUtil.shutdown();
+    }
+}
+
+Part C — Transaction Management Using Spring and Hibernate (Banking Transfer)
+SQL DDL (MySQL)
+CREATE TABLE IF NOT EXISTS Account (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  owner VARCHAR(100),
+  balance DECIMAL(15,2) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS TransferLog (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  fromAccount INT,
+  toAccount INT,
+  amount DECIMAL(15,2),
+  description VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+com/example/app/partc/entity/Account.java
+package com.example.app.partc.entity;
+
+import javax.persistence.*;
+import java.math.BigDecimal;
+
+@Entity
+@Table(name = "Account")
+public class Account {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    private String owner;
+
+    @Column(nullable=false)
+    private BigDecimal balance;
+
+    public Account() {}
+
+    public Account(String owner, BigDecimal balance) {
+        this.owner = owner;
+        this.balance = balance;
+    }
+
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
+
+    public String getOwner() { return owner; }
+    public void setOwner(String owner) { this.owner = owner; }
+
+    public BigDecimal getBalance() { return balance; }
+    public void setBalance(BigDecimal balance) { this.balance = balance; }
+
+    @Override
+    public String toString() {
+        return "Account{id=" + id + ", owner='" + owner + "', balance=" + balance + "}";
+    }
+}
+
+com/example/app/partc/entity/TransferLog.java
+package com.example.app.partc.entity;
+
+import javax.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "TransferLog")
+public class TransferLog {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    private Integer fromAccount;
+    private Integer toAccount;
+    private BigDecimal amount;
+    private String description;
+    private LocalDateTime createdAt;
+
+    public TransferLog() {}
+
+    public TransferLog(Integer fromAccount, Integer toAccount, BigDecimal amount, String description) {
+        this.fromAccount = fromAccount;
+        this.toAccount = toAccount;
+        this.amount = amount;
+        this.description = description;
+        this.createdAt = LocalDateTime.now();
+    }
+
+    // getters/setters...
+
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
+
+    public Integer getFromAccount() { return fromAccount; }
+    public void setFromAccount(Integer fromAccount) { this.fromAccount = fromAccount; }
+
+    public Integer getToAccount() { return toAccount; }
+    public void setToAccount(Integer toAccount) { this.toAccount = toAccount; }
+
+    public BigDecimal getAmount() { return amount; }
+    public void setAmount(BigDecimal amount) { this.amount = amount; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    @Override
+    public String toString() {
+        return "TransferLog{id=" + id + ", from=" + fromAccount + ", to=" + toAccount + ", amount=" + amount + "}";
+    }
+}
+
+com/example/app/partc/dao/AccountDAO.java
+package com.example.app.partc.dao;
+
+import com.example.app.partc.entity.Account;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class AccountDAO {
+
+    @Autowired
+    private SessionFactory sessionFactory;
+
+    protected Session currentSession() {
+        return sessionFactory.getCurrentSession();
+    }
+
+    public Account findById(Integer id) {
+        return currentSession().get(Account.class, id);
+    }
+
+    public void save(Account acc) {
+        currentSession().saveOrUpdate(acc);
+    }
+}
+
+com/example/app/partc/dao/TransferLogDAO.java
+package com.example.app.partc.dao;
+
+import com.example.app.partc.entity.TransferLog;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class TransferLogDAO {
+
+    @Autowired
+    private SessionFactory sessionFactory;
+
+    public void log(TransferLog log) {
+        sessionFactory.getCurrentSession().save(log);
+    }
+}
+
+com/example/app/partc/service/BankingService.java
+package com.example.app.partc.service;
+
+import java.math.BigDecimal;
+
+public interface BankingService {
+    void transfer(int fromAccountId, int toAccountId, BigDecimal amount, String description);
+}
+
+com/example/app/partc/service/BankingServiceImpl.java
+package com.example.app.partc.service;
+
+import com.example.app.partc.dao.AccountDAO;
+import com.example.app.partc.dao.TransferLogDAO;
+import com.example.app.partc.entity.Account;
+import com.example.app.partc.entity.TransferLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+
+@Service
+public class BankingServiceImpl implements BankingService {
+
+    @Autowired
+    private AccountDAO accountDAO;
+
+    @Autowired
+    private TransferLogDAO transferLogDAO;
+
+    @Override
+    @Transactional
+    public void transfer(int fromAccountId, int toAccountId, BigDecimal amount, String description) {
+        // Fetch accounts
+        Account from = accountDAO.findById(fromAccountId);
+        Account to = accountDAO.findById(toAccountId);
+
+        if (from == null) throw new RuntimeException("From account not found");
+        if (to == null) throw new RuntimeException("To account not found");
+
+        if (from.getBalance().compareTo(amount) < 0) {
+            throw new RuntimeException("Insufficient balance in account " + fromAccountId);
+        }
+
+        // Deduct and add
+        from.setBalance(from.getBalance().subtract(amount));
+        accountDAO.save(from);
+
+        // optionally simulate failure for testing rollback:
+        // if (true) throw new RuntimeException("Simulated failure after debit");
+
+        to.setBalance(to.getBalance().add(amount));
+        accountDAO.save(to);
+
+        // Log transfer
+        TransferLog log = new TransferLog(fromAccountId, toAccountId, amount, description);
+        transferLogDAO.log(log);
+    }
+}
+
+Spring Java config for Part C (and we will reuse it for Part B/hbm)
+
+com/example/app/partc/SpringHibernateConfig.java
+
+package com.example.app.partc;
+
+import java.util.Properties;
+
+import javax.sql.DataSource;
+
+import com.example.app.partc.entity.Account;
+import com.example.app.partc.entity.TransferLog;
+import com.example.app.partb.StudentEntity;
+
+import org.apache.commons.dbcp2.BasicDataSource;
+import org.hibernate.SessionFactory;
+import org.springframework.context.annotation.*;
+import org.springframework.orm.hibernate5.HibernateTransactionManager;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+@Configuration
+@ComponentScan(basePackages = "com.example.app.partc")
+@EnableTransactionManagement
+public class SpringHibernateConfig {
+
+    @Bean
+    public DataSource dataSource() {
+        BasicDataSource ds = new BasicDataSource();
+        ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        ds.setUrl("jdbc:mysql://localhost:3306/demo?useSSL=false&serverTimezone=UTC");
+        ds.setUsername("root");
+        ds.setPassword("root");
+        ds.setInitialSize(2);
+        return ds;
+    }
+
+    @Bean
+    public LocalSessionFactoryBean sessionFactory() {
+        LocalSessionFactoryBean lsfb = new LocalSessionFactoryBean();
+        lsfb.setDataSource(dataSource());
+        lsfb.setPackagesToScan("com.example.app.partc.entity", "com.example.app.partb");
+        Properties props = new Properties();
+        props.put("hibernate.dialect", "org.hibernate.dialect.MySQL8Dialect");
+        props.put("hibernate.show_sql", "true");
+        props.put("hibernate.hbm2ddl.auto", "update"); // update for development
+        lsfb.setHibernateProperties(props);
+        return lsfb;
+    }
+
+    @Bean
+    public HibernateTransactionManager transactionManager(SessionFactory sessionFactory) {
+        HibernateTransactionManager tm = new HibernateTransactionManager();
+        tm.setSessionFactory(sessionFactory);
+        return tm;
+    }
+}
+
+com/example/app/partc/MainC.java
+package com.example.app.partc;
+
+import com.example.app.partc.entity.Account;
+import com.example.app.partc.service.BankingService;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+import java.math.BigDecimal;
+
+public class MainC {
+    public static void main(String[] args) {
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(SpringHibernateConfig.class);
+
+        // prepare some demo accounts (in a transaction-less simple session for bootstrap)
+        var sessionFactory = ctx.getBean(org.hibernate.SessionFactory.class);
+        var session = sessionFactory.openSession();
+        var tx = session.beginTransaction();
+        Account a1 = new Account("Alice", new BigDecimal("1000.00"));
+        Account a2 = new Account("Bob", new BigDecimal("500.00"));
+        session.saveOrUpdate(a1);
+        session.saveOrUpdate(a2);
+        tx.commit();
+        session.close();
+
+        BankingService bankingService = ctx.getBean(BankingService.class);
+
+        System.out.println("Before transfer:");
+        printAccount(sessionFactory, a1.getId());
+        printAccount(sessionFactory, a2.getId());
+
+        try {
+            bankingService.transfer(a1.getId(), a2.getId(), new BigDecimal("200.00"), "Rent payment");
+            System.out.println("Transfer succeeded.");
+        } catch (Exception e) {
+            System.out.println("Transfer failed: " + e.getMessage());
+        }
+
+        System.out.println("After transfer:");
+        printAccount(sessionFactory, a1.getId());
+        printAccount(sessionFactory, a2.getId());
+
+        ctx.close();
+    }
+
+    private static void printAccount(org.hibernate.SessionFactory sessionFactory, Integer id) {
+        var session = sessionFactory.openSession();
+        var a = session.get(Account.class, id);
+        System.out.println(a);
+        session.close();
+    }
+}
+
+POM (Maven) - essential dependencies
+
+Add to your pom.xml (versions are placeholders — pick compatible versions):
+
+<dependencies>
+    <!-- Spring -->
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context</artifactId>
+        <version>5.3.29</version>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-orm</artifactId>
+        <version>5.3.29</version>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-tx</artifactId>
+        <version>5.3.29</version>
+    </dependency>
+
+    <!-- Hibernate -->
+    <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-core</artifactId>
+        <version>5.6.15.Final</version>
+    </dependency>
+
+    <!-- JPA -->
+    <dependency>
+        <groupId>jakarta.persistence</groupId>
+        <artifactId>jakarta.persistence-api</artifactId>
+        <version>2.2.3</version>
+    </dependency>
+
+    <!-- MySQL connector -->
+    <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>8.0.33</version>
+    </dependency>
+
+    <!-- Commons DBCP for DataSource -->
+    <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-dbcp2</artifactId>
+        <version>2.9.0</version>
+    </dependency>
+
+    <!-- Logging -->
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>1.7.36</version>
+    </dependency>
+</dependencies>
