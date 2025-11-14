@@ -1,0 +1,225 @@
+login.html
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Login</title>
+</head>
+<body>
+
+<h2>User Login Form</h2>
+
+<form action="LoginServlet" method="post">
+    Username: <input type="text" name="username" required><br><br>
+    Password: <input type="password" name="password" required><br><br>
+    <input type="submit" value="Login">
+</form>
+
+</body>
+</html>
+
+
+LoginServlet.java
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
+
+@WebServlet("/LoginServlet")
+public class LoginServlet extends HttpServlet {
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        response.setContentType("text/html");
+        PrintWriter out = response.getWriter();
+
+        String user = request.getParameter("username");
+        String pass = request.getParameter("password");
+
+        if (user.equals("admin") && pass.equals("1234")) {
+            out.println("<h2>Welcome " + user + "!</h2>");
+        } else {
+            out.println("<h2>Invalid Username or Password</h2>");
+            out.println("<a href='login.html'>Try Again</a>");
+        }
+    }
+}
+
+PART B — EMPLOYEE RECORDS WITH JDBC
+
+CREATE TABLE Employee (
+    EmpID INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Salary DECIMAL(10,2)
+);
+
+import java.io.*;
+import java.sql.*;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
+
+@WebServlet("/EmployeeServlet")
+public class EmployeeServlet extends HttpServlet {
+
+    String url = "jdbc:mysql://localhost:3306/testdb";
+    String user = "root";
+    String pass = "root";
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        response.setContentType("text/html");
+        PrintWriter out = response.getWriter();
+
+        out.println("<h2>Employee List</h2>");
+
+        // Search form
+        out.println("<form method='post' action='EmployeeServlet'>");
+        out.println("Search by ID: <input type='text' name='empid'> ");
+        out.println("<input type='submit' value='Search'>");
+        out.println("</form><br>");
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection(url, user, pass);
+
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery("SELECT * FROM Employee");
+
+            out.println("<table border='1' cellpadding='6'>");
+            out.println("<tr><th>ID</th><th>Name</th><th>Salary</th></tr>");
+
+            while (rs.next()) {
+                out.println("<tr>");
+                out.println("<td>" + rs.getInt(1) + "</td>");
+                out.println("<td>" + rs.getString(2) + "</td>");
+                out.println("<td>" + rs.getDouble(3) + "</td>");
+                out.println("</tr>");
+            }
+
+            out.println("</table>");
+            con.close();
+
+        } catch (Exception e) {
+            out.println("Error: " + e);
+        }
+    }
+
+    // Search Employee by ID
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        response.setContentType("text/html");
+        PrintWriter out = response.getWriter();
+        String id = request.getParameter("empid");
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection(url, user, pass);
+
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM Employee WHERE EmpID=?");
+            ps.setInt(1, Integer.parseInt(id));
+
+            ResultSet rs = ps.executeQuery();
+
+            out.println("<h2>Employee Details</h2>");
+
+            if (rs.next()) {
+                out.println("ID: " + rs.getInt("EmpID") + "<br>");
+                out.println("Name: " + rs.getString("Name") + "<br>");
+                out.println("Salary: " + rs.getDouble("Salary") + "<br>");
+            } else {
+                out.println("No Record Found!");
+            }
+
+            con.close();
+        } catch (Exception e) {
+            out.println("Error: " + e);
+        }
+    }
+}
+
+PART C — STUDENT ATTENDANCE PORTAL (JSP + Servlet + JDBC)
+CREATE TABLE Attendance (
+    StudentID INT,
+    Date VARCHAR(20),
+    Status VARCHAR(10)
+);
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Attendance Form</title>
+</head>
+<body>
+
+<h2>Student Attendance Form</h2>
+
+<form action="AttendanceServlet" method="post">
+    Student ID: <input type="text" name="sid" required><br><br>
+    Date: <input type="text" name="date" placeholder="YYYY-MM-DD" required><br><br>
+    Status: 
+    <select name="status">
+        <option>Present</option>
+        <option>Absent</option>
+    </select><br><br>
+
+    <input type="submit" value="Submit Attendance">
+</form>
+
+</body>
+</html>
+
+import java.io.*;
+import java.sql.*;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
+
+@WebServlet("/AttendanceServlet")
+public class AttendanceServlet extends HttpServlet {
+
+    String url = "jdbc:mysql://localhost:3306/testdb";
+    String user = "root";
+    String pass = "root";
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        response.setContentType("text/html");
+        PrintWriter out = response.getWriter();
+
+        String sid = request.getParameter("sid");
+        String date = request.getParameter("date");
+        String status = request.getParameter("status");
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection(url, user, pass);
+
+            PreparedStatement ps = con.prepareStatement(
+                "INSERT INTO Attendance (StudentID, Date, Status) VALUES (?, ?, ?)"
+            );
+
+            ps.setInt(1, Integer.parseInt(sid));
+            ps.setString(2, date);
+            ps.setString(3, status);
+
+            ps.executeUpdate();
+            con.close();
+
+            out.println("<h2>Attendance Saved Successfully!</h2>");
+            out.println("<a href='attendance.jsp'>Back</a>");
+
+        } catch (Exception e) {
+            out.println("Error: " + e);
+        }
+    }
+}
+
+
+
