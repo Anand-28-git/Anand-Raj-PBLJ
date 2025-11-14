@@ -1,0 +1,138 @@
+Part-2
+
+import java.io.Serializable;
+
+public class Student implements Serializable {
+    private int studentID;
+    private String name;
+    private double grade;
+
+    public Student(int studentID, String name, double grade) {
+        this.studentID = studentID;
+        this.name = name;
+        this.grade = grade;
+    }
+
+    public void display() {
+        System.out.println("Student ID : " + studentID);
+        System.out.println("Name       : " + name);
+        System.out.println("Grade      : " + grade);
+    }
+}
+
+
+import java.io.*;
+
+public class StudentSerializationDemo {
+    public static void main(String[] args) {
+        String filename = "studentData.ser";
+
+        // Create Student object
+        Student s1 = new Student(101, "Anand", 8.5);
+
+        // Serialization
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
+            out.writeObject(s1);
+            System.out.println("Student object serialized successfully!");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Deserialization
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename))) {
+            Student s2 = (Student) in.readObject();
+            System.out.println("\nDeserialized Student Data:");
+            s2.display();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+
+import java.io.*;
+import java.util.Scanner;
+
+public class EmployeeManagementSystem {
+
+    private static final String FILE_NAME = "employees.txt";
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int choice;
+
+        while (true) {
+            System.out.println("\n===== Employee Management System =====");
+            System.out.println("1. Add Employee");
+            System.out.println("2. Display All Employees");
+            System.out.println("3. Exit");
+            System.out.print("Enter choice: ");
+            choice = sc.nextInt();
+
+            switch (choice) {
+                case 1:
+                    addEmployee(sc);
+                    break;
+                case 2:
+                    displayEmployees();
+                    break;
+                case 3:
+                    System.out.println("Exiting... Thank you!");
+                    sc.close();
+                    return;
+                default:
+                    System.out.println("Invalid choice! Try again.");
+            }
+        }
+    }
+
+    // Add employee and save to file
+    public static void addEmployee(Scanner sc) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_NAME, true))) {
+            System.out.print("Enter Employee ID: ");
+            int id = sc.nextInt();
+
+            sc.nextLine(); // consume leftover newline
+
+            System.out.print("Enter Employee Name: ");
+            String name = sc.nextLine();
+
+            System.out.print("Enter Designation: ");
+            String designation = sc.nextLine();
+
+            System.out.print("Enter Salary: ");
+            double salary = sc.nextDouble();
+
+            String record = id + "," + name + "," + designation + "," + salary;
+            bw.write(record);
+            bw.newLine();
+
+            System.out.println("Employee added successfully!");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Display all employees
+    public static void displayEmployees() {
+        try (BufferedReader br = new BufferedReader(new FileReader(FILE_NAME))) {
+            String line;
+            System.out.println("\n===== Employee Records =====");
+
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split(",");
+                System.out.println("ID: " + data[0] +
+                                   " | Name: " + data[1] +
+                                   " | Designation: " + data[2] +
+                                   " | Salary: " + data[3]);
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("No employee data found!");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
